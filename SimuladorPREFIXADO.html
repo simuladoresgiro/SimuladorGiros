@@ -533,7 +533,7 @@ function calcular(){
         return;
     }
 
-    if(sistema === "price" && base < diasNoMes(d0.getFullYear(), d0.getMonth()) && car < 1){
+    if(sistema === "price" && base < d0.getDate() && car < 1){
         alert("Para PRICE com data base menor que o dia da contratação, atribuir pelo menos 1 mês de carência.");
         return;
     }
