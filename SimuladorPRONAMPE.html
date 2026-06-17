@@ -186,7 +186,7 @@ tbody tr:hover { background:#eef3fb; }
 
     <div class="field">
         <label for="valor">Valor (R$)</label>
-        <input id="valor" type="number" min="0" step="0.01" value="150000">
+        <input id="valor" type="text" inputmode="decimal" value="150.000,00">
     </div>
 
     <div class="field">
@@ -272,7 +272,7 @@ tbody tr:hover { background:#eef3fb; }
     </section>
         <table class="mini-table">
             <tbody>
-                <tr><td>Sistema de Simulação Capital de Giro</td><td>v1.0</td></tr>
+                <tr><td>Desenvolvido por F3421879 - Guerreiro</td><td>v1.0</td></tr>
             </tbody>
         </table>
 </div>
@@ -360,6 +360,11 @@ function formatDateBR(value){
     const date = new Date(value);
     if(isNaN(date)) return value;
     return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${date.getFullYear()}`;
+}
+
+function parseValor(str){
+    if(!str) return NaN;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
 }
 
 function formatReal(value){
@@ -456,7 +461,7 @@ function atualizarImpactoLimite(valorContratado){
 
 function calcular(){
 
-    let valor = parseFloat(valorInput.value);
+    let valor = parseValor(valorInput.value);
     let prazo = parseInt(prazoInput.value);
     let car = parseInt(carenciaInput.value);
     let base = parseInt(dataBaseInput.value);
