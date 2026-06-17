@@ -174,7 +174,7 @@ tbody tr:hover { background:#eef3fb; }
 
     <div class="field">
         <label for="valor">Valor (R$)</label>
-        <input id="valor" type="number" min="0" step="0.01" value="429000">
+        <input id="valor" type="text" inputmode="decimal" value="429.000,00">
     </div>
 
     <div class="field">
@@ -404,6 +404,11 @@ function formatDateBR(value){
     return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${date.getFullYear()}`;
 }
 
+function parseValor(str){
+    if(!str) return NaN;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+}
+
 function formatReal(value){
     if(isNaN(value) || value === null) return "R$ 0,00";
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -500,7 +505,7 @@ function atualizarImpactoLimite(valorContratado, diasTotais){
 
 function calcular(){
 
-    let valor = parseFloat(valorInput.value);
+    let valor = parseValor(valorInput.value);
     let prazo = parseInt(prazoInput.value);
     let car = parseInt(carenciaInput.value);
     let base = parseInt(dataBaseInput.value);
@@ -522,14 +527,14 @@ function calcular(){
         return;
     }
 
-    if(sistema === "price" && car < 1){
-        alert("Para PRICE, atribuir pelo menos 1 mês de carência.");
-        return;
-    }
-
     let amortFinanceiro = prazo - car;
     if(amortFinanceiro <= 0){
         alert("Prazo deve ser maior que a carência.");
+        return;
+    }
+
+    if(sistema === "price" && base < diasNoMes(d0.getFullYear(), d0.getMonth()) && car < 1){
+        alert("Para PRICE com data base menor que o dia da contratação, atribuir pelo menos 1 mês de carência.");
         return;
     }
 
@@ -664,10 +669,6 @@ function calcular(){
         let dc = diasCorridos(anterior, data);
 
         let principalJuros = saldoDevedor;
-        if(i === 0 && usarPrincipalEstendido){
-            principalJuros += iofAdicionalTotal + tac + comissaoFlat;
-        }
-
         let jurosPeriodo, capitalParcela, parcelaTotal;
 
         if(sistema === "sac"){
@@ -685,8 +686,11 @@ function calcular(){
                 let jurosPrimeiro = baseAmount * taxaMensal * (firstSegmentDays / 30);
                 let jurosSegundo = (baseAmount + jurosPrimeiro) * taxaMensal * (secondSegmentDays / 30);
                 jurosPeriodo = jurosPrimeiro + jurosSegundo;
-                capitalParcela = 0;
-                parcelaTotal = jurosPeriodo;
+                if(iofFinanciado && i+1 > car){
+                    jurosPeriodo += iofFinanciadoShare;
+                }
+                capitalParcela = (i+1 <= car) ? 0 : valor / amortFinanceiro;
+                parcelaTotal = jurosPeriodo + capitalParcela;
             } else {
                 jurosPeriodo = principalJuros * taxaMensal * (dc / 30);
                 if(iofFinanciado && i+1 > car){
