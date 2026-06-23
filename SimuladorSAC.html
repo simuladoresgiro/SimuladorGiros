@@ -566,6 +566,11 @@ function calcular(){
         return;
     }
 
+    if(base === 31){
+        alert("Data base 31 não é permitida.");
+        return;
+    }
+
     let amortFinanceiro = prazo - car;
     if(amortFinanceiro <= 0){
         alert("Prazo deve ser maior que a carência.");
@@ -641,34 +646,19 @@ function calcular(){
     let datas = [];
     const firstMonthOffset = base < d0.getDate() ? 2 : 1;
 
-    for(let i=1;i<=prazo;i++){
-        let dt;
-        if(i === 1){
-            dt = cloneDate(d0);
-            dt.setMonth(d0.getMonth() + firstMonthOffset);
-        } else {
-            dt = cloneDate(datas[datas.length - 1]);
-            dt.setMonth(dt.getMonth() + 1);
-        }
+    // monthCursor representa o mês-alvo da próxima parcela, sem sofrer rollover do dia base.
+    let monthCursor = cloneDate(d0);
+    monthCursor.setMonth(monthCursor.getMonth() + firstMonthOffset);
+    monthCursor.setDate(1);
 
-        dt.setDate(base);
+    while(datas.length < prazo){
+        let dt = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), base);
         if(!ehUtil(dt)){
             dt = proximoUtil(dt);
         }
-
-        if(datas.length > 0){
-            const ultima = datas[datas.length - 1];
-            if(dt <= ultima){
-                dt = cloneDate(ultima);
-                dt.setMonth(dt.getMonth() + 1);
-                dt.setDate(base);
-                if(!ehUtil(dt)){
-                    dt = proximoUtil(dt);
-                }
-            }
-        }
-
         datas.push(dt);
+
+        monthCursor.setMonth(monthCursor.getMonth() + 1);
     }
 
     tabela.innerHTML = "";
