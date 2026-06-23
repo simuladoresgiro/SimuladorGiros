@@ -522,6 +522,11 @@ function calcular(){
         return;
     }
 
+    if(base === 31){
+        alert("Data base 31 não é permitida.");
+        return;
+    }
+
     if(!taxaMensal || taxaMensal <= 0){
         alert("Informe a Taxa Mensal Prefixada.");
         return;
@@ -588,14 +593,30 @@ function calcular(){
 
     const firstMonthOffset = (sistema === "sac" && base < d0.getDate()) ? 2 : 1;
 
-    for(let i=1;i<=prazo;i++){
+    let genCount = 0;
+    while(datas.length < prazo){
+        genCount++;
         let dt;
-        if(i === 1){
+        if(genCount === 1){
             dt = cloneDate(d0Base);
             dt.setMonth(d0Base.getMonth() + firstMonthOffset);
         } else {
             dt = cloneDate(datas[datas.length - 1]);
+            let prevDay = dt.getDate();
             dt.setMonth(dt.getMonth() + 1);
+            // Detect month-end rollover (e.g. Jan 30 → setMonth(1) → Feb 30 rolls to Mar 2)
+            if(dt.getDate() !== prevDay){
+                // Rolled over: push 1st of the month we rolled into
+                let rolloverMonth = dt.getMonth();
+                let rolloverYear = dt.getFullYear();
+                datas.push(new Date(rolloverYear, rolloverMonth, 1));
+                if(datas.length >= prazo) break;
+                // Now create base-day parcel for this same month (or next if base not valid)
+                let baseDay = new Date(rolloverYear, rolloverMonth, base);
+                dt = baseDay.getDate() === base ? baseDay : new Date(rolloverYear, rolloverMonth + 1, 1);
+                datas.push(dt);
+                continue;
+            }
         }
         dt.setDate(base);
         datas.push(dt);
