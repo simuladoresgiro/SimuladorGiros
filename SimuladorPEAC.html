@@ -519,6 +519,11 @@ function calcular(){
     let car = parseInt(carenciaInput.value);
     let base = parseInt(dataBaseInput.value);
 
+    if(base > 28){
+        car += 1;
+        prazo += 1;
+    }
+
     let usarSeguro = seguroSelect.checked; // ✅ NOVO
 
     let saldo = valor;
@@ -533,21 +538,18 @@ function calcular(){
 
         let dt;
 
-        if(base >= 29){
-
-            dt = new Date(d0);
-            dt.setMonth(d0.getMonth() + i);
-            dt.setDate(1);
+        if(base > 28){
 
             if(i === 1){
-                let diff = diasCorridos(d0, dt);
-                if(diff < 30){
-                    dt.setMonth(dt.getMonth() + 1);
-                }
-            }
-
-            if(tipo.value==="cdi"){
+                // First parcel: first business day of the month after release
+                dt = new Date(d0.getFullYear(), d0.getMonth() + 1, 1);
                 dt = proximoUtil(dt);
+            } else {
+                dt = new Date(d0.getFullYear(), d0.getMonth() + i, 1);
+
+                if(tipo.value==="cdi"){
+                    dt = proximoUtil(dt);
+                }
             }
 
         } else {
@@ -565,13 +567,10 @@ function calcular(){
             let ultima = datas[datas.length - 1];
 
             if(dt <= ultima){
-                dt = new Date(ultima);
-                dt.setMonth(dt.getMonth() + 1);
-
-                if(base >= 29){
-                    dt.setDate(1);
+                if(base > 28){
+                    dt = new Date(ultima.getFullYear(), ultima.getMonth() + 1, 1);
                 } else {
-                    dt.setDate(base);
+                    dt = new Date(ultima.getFullYear(), ultima.getMonth() + 1, base);
                 }
 
                 if(tipo.value==="cdi"){
@@ -623,6 +622,7 @@ function calcular(){
     }
 
     let parcelasSeguro = prazo - 1;
+    if(base > 28) parcelasSeguro -= 1;
     let seguroParcela = parcelasSeguro > 0 ? totalSeguro / parcelasSeguro : 0;
 
     const descontoECG =
@@ -691,7 +691,7 @@ if(tipoTacSelect.value === "manual" && isNaN(tacManual)){
 
         // ✅ SEGURO POR PARCELA
         let seguroAtual = 0;
-        if(usarSeguro && i < prazo - 2){
+        if(usarSeguro && i < prazo - 2 && !(base > 28 && i === 0)){
             seguroAtual = seguroParcela;
         }
 
