@@ -399,8 +399,21 @@ function formatDateLocal(date){
     return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
 
+function parseDateInputLocal(value){
+    if(value instanceof Date){
+        return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
+
+    if(typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)){
+        const [year, month, day] = value.split("-").map(Number);
+        return new Date(year, month - 1, day);
+    }
+
+    return new Date(value);
+}
+
 function formatDateBR(value){
-    const date = new Date(value);
+    const date = parseDateInputLocal(value);
     if(isNaN(date)) return value;
     return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}/${date.getFullYear()}`;
 }
@@ -529,7 +542,7 @@ function calcular(){
     let saldo = valor;
     let amort = valor/(prazo-car);
 
-    let d0 = new Date(dataLiberacaoInput.value);
+    let d0 = parseDateInputLocal(dataLiberacaoInput.value);
     let anterior = new Date(d0);
 
     let datas = [];
@@ -554,9 +567,7 @@ function calcular(){
 
         } else {
 
-            dt = new Date(d0);
-            dt.setMonth(d0.getMonth() + i);
-            dt.setDate(base);
+            dt = new Date(d0.getFullYear(), d0.getMonth() + i, base);
 
             if(tipo.value==="cdi"){
                 dt = proximoUtil(dt);
