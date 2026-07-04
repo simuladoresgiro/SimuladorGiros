@@ -525,6 +525,18 @@ function obterFatorK(prazo){
     return faixa ? faixa.k : 0;
 }
 
+function mesesInteirosEntre(dataInicial, dataFinal){
+    let meses =
+        (dataFinal.getFullYear() - dataInicial.getFullYear()) * 12 +
+        (dataFinal.getMonth() - dataInicial.getMonth());
+
+    if(dataFinal.getDate() < dataInicial.getDate()){
+        meses -= 1;
+    }
+
+    return Math.max(meses, 0);
+}
+
 function calcular(){
 
     let valor = parseValor(valorInput.value);
@@ -636,17 +648,18 @@ function calcular(){
     if(base > 28) parcelasSeguro -= 1;
     let seguroParcela = parcelasSeguro > 0 ? totalSeguro / parcelasSeguro : 0;
 
-    const descontoECG =
+const descontoECG =
     parseFloat(document.getElementById("descontoEcg").value || 40) / 100;
 
-const fatorK = obterFatorK(prazo);
+const prazoFatorK = mesesInteirosEntre(d0, datas[datas.length - 1]);
+const fatorK = obterFatorK(prazoFatorK);
 
 const valorECG =
     0.8 *
     fatorK *
     valor *
     (1 - descontoECG) *
-    prazo;
+    prazoFatorK;
 
 let tacAutomatico = valor * 0.03;
 
@@ -672,10 +685,6 @@ if(tipoTacSelect.value === "manual" && isNaN(tacManual)){
 
         let du = diasUteis(anterior,data);
         let dc = diasCorridos(anterior,data);
-
-        if(i === 0){
-            dc = Math.max(dc - 1, 0);
-        }
 
         let juros, diasExibidos, iofPeriodo = 0;
 
