@@ -594,7 +594,7 @@ function calcular(){
     }
 
     let despesaLiberacao = totalIOF + (usarSeguro ? seguroParcela : 0);
-    let totalFinal = totalPago + totalIOF;
+    let totalFinal = totalPago + despesaLiberacao;
 
     const valorLiberado = valor - despesaLiberacao;
     const cetAnual = calcularCetAnual(valorLiberado, fluxosParcelas);
