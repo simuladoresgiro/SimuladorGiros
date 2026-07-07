@@ -533,6 +533,19 @@ function diasUteis(d1, d2){
     return count;
 }
 
+function diasUteisNetworkdaysMenos1(d1, d2){
+    let count = 0;
+    let d = cloneDate(d1);
+    const end = cloneDate(d2);
+
+    while(d <= end){
+        if(ehUtil(d)) count++;
+        d.setDate(d.getDate() + 1);
+    }
+
+    return Math.max(count - 1, 0);
+}
+
 function jurosCDI(saldo, taxaDiaria, diasUteis){
     return saldo * (Math.pow(taxaDiaria, diasUteis) - 1);
 }
@@ -767,7 +780,14 @@ function calcular(){
 
     const textoCetMensal = cetMensal === null ? "N/A" : `${(cetMensal * 100).toFixed(2)}% a.m.`;
     const textoCetAnual = cetAnual === null ? "N/A" : `${(cetAnual * 100).toFixed(2)}% a.a.`;
-    const taxaMensalAtual = Math.pow(taxaAnual, 1/12) - 1;
+
+    const primeiroDiaMes = new Date(d0.getFullYear(), d0.getMonth(), 1);
+    const ultimoDiaMes = new Date(d0.getFullYear(), d0.getMonth() + 1, 0);
+    let duTaxa = diasUteisNetworkdaysMenos1(primeiroDiaMes, ultimoDiaMes);
+    if(duTaxa <= 0){
+        duTaxa = 1;
+    }
+    const taxaMensalAtual = Math.pow(taxaAnual, duTaxa / 252) - 1;
     const textoTaxaMensalAtual = `${(taxaMensalAtual * 100).toFixed(2)}% a.m.`;
     const totalLiquido = valor - despesaLiberacao;
     const textoLegendaParcela = usarSeguro ? "    ³Inclui valor da parcela do prestamista." : "";
