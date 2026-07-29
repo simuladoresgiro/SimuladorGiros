@@ -492,32 +492,26 @@ function calcular(){
     for(let i=1;i<=prazo;i++){
         let dt;
         if(base >= 29){
-            dt = cloneDate(d0);
-            dt.setMonth(d0.getMonth() + i);
-            dt.setDate(1);
+            dt = new Date(d0.getFullYear(), d0.getMonth() + i, 1);
             if(i === 1){
                 let diff = diasCorridos(d0, dt);
                 if(diff < 30){
-                    dt.setMonth(dt.getMonth() + 1);
+                    dt = new Date(dt.getFullYear(), dt.getMonth() + 1, 1);
                 }
             }
             dt = proximoUtil(dt);
         } else {
-            dt = cloneDate(d0);
-            dt.setMonth(d0.getMonth() + i);
-            dt.setDate(base);
+            dt = new Date(d0.getFullYear(), d0.getMonth() + i, base);
             dt = proximoUtil(dt);
         }
 
         if(datas.length > 0){
             let ultima = datas[datas.length - 1];
             if(dt <= ultima){
-                dt = cloneDate(ultima);
-                dt.setMonth(dt.getMonth() + 1);
                 if(base >= 29){
-                    dt.setDate(1);
+                    dt = new Date(ultima.getFullYear(), ultima.getMonth() + 1, 1);
                 } else {
-                    dt.setDate(base);
+                    dt = new Date(ultima.getFullYear(), ultima.getMonth() + 1, base);
                 }
                 dt = proximoUtil(dt);
             }
