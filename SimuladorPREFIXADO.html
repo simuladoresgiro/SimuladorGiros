@@ -106,9 +106,23 @@ button:hover {
     background:#002952;
 }
 
+.filter-card { max-width:1080px; margin:20px auto 0; background:#fff; border:1px solid #dce3eb; border-radius:12px; padding:0; box-shadow:0 10px 24px rgba(0,0,0,0.05); }
+.filter-card summary { cursor:pointer; padding:14px 18px; color:#003366; font-weight:700; list-style:none; }
+.filter-card summary::-webkit-details-marker { display:none; }
+.filter-card summary::after { content:"+"; float:right; font-size:1.1rem; }
+.filter-card[open] summary::after { content:"-"; }
+.filter-options { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px 14px; padding:0 18px 16px; }
+.filter-option { display:flex; align-items:center; gap:8px; color:#354156; font-size:0.9rem; width:auto; text-align:left; white-space:nowrap; }
+.filter-option input { width:16px; height:16px; margin:0; flex:0 0 auto; }
+.filter-actions { display:flex; gap:8px; padding:0 18px 16px; }
+button.filter-action { min-width:auto; padding:8px 12px; border-radius:8px; font-size:0.85rem; box-shadow:none; }
+@media (max-width: 760px) { .filter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
 #resumo { margin:24px auto 0; max-width:1080px; background:#fff; border:1px solid #dce3eb; border-radius:16px; padding:22px; box-shadow:0 14px 34px rgba(0,0,0,0.06); font-size:14px; }
 #resumo h3 { margin-top:0; margin-bottom:20px; color:#003366; font-size:1.2rem; }
 .resumo-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; }
+.resumo-grid.resumo-grid-linhas { grid-template-columns:1fr; }
+.resumo-row { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:14px; }
 .resumo-item { background:#f7faff; padding:12px 14px; border-radius:14px; border:1px solid #e3ecf6; display:flex; justify-content:space-between; align-items:center; gap:12px; min-width:0; }
 .resumo-item span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .resumo-item span:first-child { color:#4b607e; font-size:0.88rem; line-height:1.4; }
@@ -128,17 +142,19 @@ tbody tr:hover { background:#eef3fb; }
 @media print {
     @page { size: A4 portrait; margin: 14mm 14mm 14mm 14mm; @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size:7pt; color:#102640; font-family:Arial, sans-serif; } }
     body { margin:0; background:#fff !important; color:#000 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-    .dados-card, .tabelas-laterais, .table-card, .button-row, label, input, select, button { display:none !important; }
+    .dados-card, .tabelas-laterais, .table-card, .filter-card, .button-row, label, input, select, button { display:none !important; }
     .page-container { width:auto !important; max-width:100% !important; padding:0 !important; background:transparent !important; box-shadow:none !important; margin:0 auto !important; padding-top:12mm !important; padding-bottom:8mm !important; }
     .print-header { display:flex !important; justify-content:space-between !important; align-items:center !important; position:fixed !important; top:0 !important; left:0 !important; right:0 !important; width:100% !important; box-sizing:border-box !important; padding:1mm 14mm 0.5mm !important; font-size:7pt !important; color:#102640 !important; background:#fff !important; border-bottom:1px solid #dce3eb !important; z-index:9999 !important; line-height:1.2 !important; }
     .print-header-left, .print-header-right { display:inline-block !important; white-space:nowrap !important; }
     .print-footer { display:flex !important; justify-content:space-between !important; align-items:center !important; position:fixed !important; bottom:0 !important; left:0 !important; right:0 !important; width:100% !important; box-sizing:border-box !important; padding:0.5mm 14mm 1mm !important; font-size:7pt !important; color:#102640 !important; background:#fff !important; border-top:1px solid #dce3eb !important; z-index:9999 !important; font-family: Arial, sans-serif !important; line-height:1.2 !important; }
     .print-footer span { display:none !important; }
-    h1, #resumo, table, #rodapeSimulacao, .resumo-grid, .resumo-item, thead, tbody, tr, th, td { visibility:visible !important; }
+    h1, #resumo, table, #rodapeSimulacao, .resumo-grid, .resumo-row, .resumo-item, thead, tbody, tr, th, td { visibility:visible !important; }
     table { display:table !important; }
     .page-container { max-width:180mm !important; }
     #resumo { margin:0 auto 10mm auto; padding:4mm 3mm; box-shadow:none !important; border:1px solid #dce3eb !important; max-width:172mm !important; font-size:8pt !important; }
-    .resumo-grid { grid-template-columns: repeat(4, minmax(60px, 1fr)) !important; gap:4px !important; }
+    .resumo-grid { grid-template-columns: repeat(var(--resumo-cols, 4), minmax(60px, 1fr)) !important; gap:4px !important; }
+    .resumo-grid.resumo-grid-linhas { grid-template-columns:1fr !important; }
+    .resumo-row { grid-template-columns: repeat(4, minmax(60px, 1fr)) !important; gap:4px !important; }
     .resumo-item { padding:4px 5px !important; }
     .resumo-item span:first-child { font-size:0.6rem !important; }
     .resumo-item span:last-child { font-size:0.72rem !important; }
@@ -321,6 +337,32 @@ tbody tr:hover { background:#eef3fb; }
         </table>
 </div>
 </div>
+
+<details id="filtroCamposResumo" class="filter-card">
+    <summary>Filtrar Campos</summary>
+    <div class="filter-options">
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="valor" checked>Valor</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="taxaMensal" checked>Taxa Mensal</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="contratacao" checked>Contratação</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="dataBase" checked>Data Base</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="sistema" checked>Sistema</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="carencia" checked>Carência</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="prazoTotal" checked>Prazo Total</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="seguroTotal" checked>Seguro Total</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="seguroParcela" checked>Seguro Parcela</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="iofTotal" checked>IOF Total</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="tac" checked>TAC</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="despesaTotal" checked>Despesa Tot.</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="cetMensal" checked>CET Mensal</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="cetAnual" checked>CET Anual</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="totalPagar" checked>Total Pagar</label>
+        <label class="filter-option"><input type="checkbox" data-resumo-campo="totalLiquido" checked>Total Líq.</label>
+    </div>
+    <div class="filter-actions">
+        <button type="button" class="filter-action" onclick="marcarTodosCamposResumo(true)">Todos</button>
+        <button type="button" class="filter-action" onclick="marcarTodosCamposResumo(false)">Limpar</button>
+    </div>
+</details>
 
 <div class="button-row">
     <button id="btnCalcular" onclick="calcular()">Calcular</button>
@@ -800,27 +842,24 @@ function calcular(){
 
     const textoLegendaParcela = usarSeguro ? "    ³Inclui valor da parcela do prestamista." : "";
 
-    resumo.innerHTML = `
-    <h3>Resumo</h3>
-    <div class="resumo-grid">
-        <div class="resumo-item"><span>Valor</span><span>${formatReal(valor)}</span></div>
-        <div class="resumo-item"><span>Taxa Mensal¹</span><span>${textoTaxaMensalAtual}</span></div>
-        <div class="resumo-item"><span>Contratação</span><span>${formatDateBR(dataLiberacaoInput.value)}</span></div>
-        <div class="resumo-item"><span>Data Base</span><span>${dataBaseInput.value}</span></div>
-        <div class="resumo-item"><span>Sistema</span><span>${sistema.toUpperCase()}</span></div>
-        <div class="resumo-item"><span>Carência</span><span>${car}</span></div>
-        <div class="resumo-item"><span>Prazo Total</span><span>${prazo}</span></div>
-        <div class="resumo-item"><span>Seguro Total</span><span>${formatReal(totalSeguroValor)}</span></div>
-        <div class="resumo-item"><span>Seguro Parcela</span><span>${formatReal(seguroIntegral ? 0 : seguroParcela)}</span></div>
-        <div class="resumo-item"><span>IOF Total</span><span>${formatReal(totalIoFTotal)}</span></div>
-        <div class="resumo-item"><span>TAC</span><span>${formatReal(tac)}</span></div>
-        <div class="resumo-item"><span>Despesa Tot.²</span><span>${formatReal(despesaLiberacao)}</span></div>
-        <div class="resumo-item"><span>CET Mensal</span><span>${textoCetMensal}</span></div>
-        <div class="resumo-item"><span>CET Anual</span><span>${textoCetAnual}</span></div>
-        <div class="resumo-item"><span>Total Pagar</span><span>${formatReal(totalFinal)}</span></div>
-        <div class="resumo-item"><span>Total Líq.</span><span>${formatReal(totalLiquido)}</span></div>
-    </div>
-    `;
+    renderizarResumo([
+        { key:"valor", label:"Valor", value:formatReal(valor) },
+        { key:"taxaMensal", label:"Taxa Mensal¹", value:textoTaxaMensalAtual },
+        { key:"contratacao", label:"Contratação", value:formatDateBR(dataLiberacaoInput.value) },
+        { key:"dataBase", label:"Data Base", value:dataBaseInput.value },
+        { key:"sistema", label:"Sistema", value:sistema.toUpperCase() },
+        { key:"carencia", label:"Carência", value:car },
+        { key:"prazoTotal", label:"Prazo Total", value:prazo },
+        { key:"seguroTotal", label:"Seguro Total", value:formatReal(totalSeguroValor) },
+        { key:"seguroParcela", label:"Seguro Parcela", value:formatReal(seguroIntegral ? 0 : seguroParcela) },
+        { key:"iofTotal", label:"IOF Total", value:formatReal(totalIoFTotal) },
+        { key:"tac", label:"TAC", value:formatReal(tac) },
+        { key:"despesaTotal", label:"Despesa Tot.²", value:formatReal(despesaLiberacao) },
+        { key:"cetMensal", label:"CET Mensal", value:textoCetMensal },
+        { key:"cetAnual", label:"CET Anual", value:textoCetAnual },
+        { key:"totalPagar", label:"Total Pagar", value:formatReal(totalFinal) },
+        { key:"totalLiquido", label:"Total Líq.", value:formatReal(totalLiquido) }
+    ]);
 
     rodapeSimulacao.innerHTML = `
     ¹Valor depende da quantidade de dias corridos entre as datas-base;<br>
@@ -879,6 +918,76 @@ const impactoLimiteCliente = document.getElementById("impactoLimiteCliente");
 const btnPrint = document.getElementById("btnPrint");
 
 let resultadosValidos = false;
+let resumoCamposAtuais = [];
+
+function getCamposSelecionadosResumo(){
+    return new Set(Array.from(document.querySelectorAll('#filtroCamposResumo input[type="checkbox"]:checked')).map(input => input.dataset.resumoCampo));
+}
+
+function atualizarFiltroCamposDisponiveis(){
+    const chavesDisponiveis = new Set(resumoCamposAtuais.map(campo => campo.key));
+    document.querySelectorAll('#filtroCamposResumo input[type="checkbox"]').forEach(input => {
+        const option = input.closest('.filter-option');
+        if(option){
+            option.style.display = chavesDisponiveis.has(input.dataset.resumoCampo) ? "" : "none";
+        }
+    });
+}
+
+function renderizarResumo(campos){
+    resumoCamposAtuais = campos;
+    atualizarFiltroCamposDisponiveis();
+    const selecionados = getCamposSelecionadosResumo();
+    const linhas = [];
+    for(let i = 0; i < campos.length; i += 4){
+        const camposLinha = campos.slice(i, i + 4).filter(campo => selecionados.has(campo.key));
+        if(camposLinha.length){
+            linhas.push(camposLinha);
+        }
+    }
+    resumo.innerHTML = `
+    <h3>Resumo</h3>
+    <div class="resumo-grid resumo-grid-linhas">
+        ${linhas.map(linha => `<div class="resumo-row">${linha.map(campo => `<div class="resumo-item" data-resumo-campo="${campo.key}"><span>${campo.label}</span><span>${campo.value}</span></div>`).join("")}</div>`).join("")}
+    </div>
+    `;
+}
+
+function marcarTodosCamposResumo(marcado){
+    document.querySelectorAll('#filtroCamposResumo input[type="checkbox"]').forEach(input => {
+        const option = input.closest('.filter-option');
+        if((!option || option.style.display !== "none") && !input.disabled){
+            input.checked = marcado;
+        }
+    });
+    if(resultadosValidos && resumoCamposAtuais.length){
+        renderizarResumo(resumoCamposAtuais);
+    }
+}
+
+function atualizarFiltrosSeguro(){
+    const usarSeguro = seguroSelect.checked;
+    document.querySelectorAll('#filtroCamposResumo input[type="checkbox"]').forEach(input => {
+        if(input.dataset.resumoCampo === "seguroTotal" || input.dataset.resumoCampo === "seguroParcela"){
+            input.disabled = !usarSeguro;
+            input.checked = usarSeguro;
+        }
+    });
+    if(resultadosValidos && resumoCamposAtuais.length){
+        renderizarResumo(resumoCamposAtuais);
+    }
+}
+
+function bindFiltroCamposResumo(){
+    document.querySelectorAll('#filtroCamposResumo input[type="checkbox"]').forEach(input => {
+        input.checked = true;
+        input.addEventListener("change", () => {
+            if(resultadosValidos && resumoCamposAtuais.length){
+                renderizarResumo(resumoCamposAtuais);
+            }
+        });
+    });
+}
 
 function inicializarDatas(){
     const hoje = new Date();
@@ -904,6 +1013,7 @@ function atualizarSeguroOptions(){
     sociosContainer.style.display = usarSeguro ? "flex" : "none";
     tipoSeguroContainer.style.display = usarSeguro ? "flex" : "none";
     parcelaHeader.textContent = usarSeguro ? "Parcela³" : "Parcela";
+    atualizarFiltrosSeguro();
 }
 
 function atualizarJurosHeader(){
@@ -948,6 +1058,7 @@ tipoTacSelect.addEventListener("change", atualizarTacManual);
 sistemaSelect.addEventListener("change", () => { atualizarIofFinanciado(); resetarResultados(); });
 atualizarCabecalhoImpressao();
 bindResultsResetListeners();
+bindFiltroCamposResumo();
 window.onbeforeprint = atualizarCabecalhoImpressao;
 if(btnPrint) btnPrint.disabled = true;
 atualizarSeguroOptions();
