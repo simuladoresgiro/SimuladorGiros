@@ -132,7 +132,8 @@ button:hover {
 .filter-options { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px 14px; padding:0 18px 16px; }
 .filter-option { display:flex; align-items:center; gap:8px; color:#354156; font-size:0.9rem; width:auto; text-align:left; white-space:nowrap; }
 .filter-option input { width:16px; height:16px; margin:0; flex:0 0 auto; }
-.filter-actions { display:flex; gap:8px; padding:0 18px 16px; }
+.filter-actions { display:flex; gap:8px; padding:0 18px 16px; justify-content:space-between; align-items:center; }
+.filter-actions .filter-aviso { font-size:0.7rem; color:#5b6f89; margin-left:auto; white-space:nowrap; }
 button.filter-action { min-width:auto; padding:8px 12px; border-radius:8px; font-size:0.85rem; box-shadow:none; }
 @media (max-width: 760px) { .filter-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -363,6 +364,7 @@ tbody tr:hover { background:#eef3fb; }
     <div class="filter-actions">
         <button type="button" class="filter-action" onclick="marcarTodosCamposResumo(true)">Todos</button>
         <button type="button" class="filter-action" onclick="marcarTodosCamposResumo(false)">Limpar</button>
+        <span class="filter-aviso">Deixe selecionado apenas os campos que deseja manter <strong>visível</strong> no Resumo</span>
     </div>
 </details>
 
