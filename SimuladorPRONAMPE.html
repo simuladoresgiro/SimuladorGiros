@@ -524,6 +524,7 @@ function calcular(){
         return;
     }
 
+    const semJurosCarencia = fba > 360000;
     let amort = prazo > car ? valor / (prazo - car) : 0;
 
     // Atualizar tabela de impacto
@@ -584,6 +585,8 @@ function calcular(){
     let seguroParcela = numParcelasSeguro > 0 ? totalSeguroValor / numParcelasSeguro : 0;
 
     let saldoDevedor = valor;
+    let saldoDevedorCapital = valor;
+    let saldoDevedorJuros = 0;
 
     for(let i=0;i<prazo;i++){
 
@@ -597,7 +600,7 @@ function calcular(){
         let iofPeriodo = 0;
         let diasConsiderados = Math.min(dc, 365 - diasAcumuladosIOF);
         if(diasConsiderados > 0){
-            iofPeriodo = saldoDevedor * iofDiarioRate * diasConsiderados;
+            iofPeriodo = saldoDevedorCapital * iofDiarioRate * diasConsiderados;
             iofPeriodo = Math.round(iofPeriodo * 100) / 100;
             totalIOF += iofPeriodo;
             diasAcumuladosIOF += diasConsiderados;
@@ -607,8 +610,23 @@ function calcular(){
         let seguroAtual = (usarSeguro && i < prazo - 2) ? seguroParcela : 0;
         let parcelaTotal = jurosPeriodo + capitalParcela + seguroAtual;
 
-        saldoDevedor -= capitalParcela;
-        if(saldoDevedor < 0.01) saldoDevedor = 0;
+        if(semJurosCarencia && i + 1 <= car){
+            saldoDevedorJuros += jurosPeriodo;
+            saldoDevedor = saldoDevedorCapital + saldoDevedorJuros;
+            capitalParcela = 0;
+            parcelaTotal = seguroAtual;
+        } else {
+            if(saldoDevedorCapital > 0 && saldoDevedorJuros > 0 && capitalParcela > 0){
+                const jurosAmortizado = saldoDevedorJuros * (capitalParcela / saldoDevedorCapital);
+                saldoDevedorJuros = Math.max(0, saldoDevedorJuros - jurosAmortizado);
+                jurosPeriodo += jurosAmortizado;
+            }
+            saldoDevedorCapital -= capitalParcela;
+            if(saldoDevedorCapital < 0.01) saldoDevedorCapital = 0;
+            saldoDevedor = saldoDevedorCapital + saldoDevedorJuros;
+            if(saldoDevedor < 0.01) saldoDevedor = 0;
+            parcelaTotal = jurosPeriodo + capitalParcela + seguroAtual;
+        }
 
         fluxosParcelas.push({
             valor: parcelaTotal,
